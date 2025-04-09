@@ -28,8 +28,6 @@ This repository contains a variety of data analysis projects demonstrating my sk
 
 Feel free to explore these projects and reach out if you have any questions or collaboration ideas!
 
-- **LinkedIn**: ["https://www.linkedin.com/in/etisamulhaq"]
-
 ## License
 
 This repository is licensed under the MIT License - see the LICENSE file for details.
