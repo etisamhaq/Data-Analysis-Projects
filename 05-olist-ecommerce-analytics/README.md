@@ -38,6 +38,44 @@ About 99,000 real orders, January 2017 – August 2018 (complete months):
 cd 05-olist-ecommerce-analytics/dashboard && python -m http.server 8000   # then open http://localhost:8000
 ```
 
+## Concepts and techniques
+
+**Data engineering and modelling**
+- Layered ELT warehouse in DuckDB (raw, staging, marts), following the dbt pattern
+- Dimensional modelling: an order fact table and a customer dimension
+- SQL data tests: uniqueness, not-null, accepted ranges, referential integrity, business rules and a tolerance test
+- Cleaning in SQL: deduplicating reviews with `row_number`, filtering bad geocodes, translating categories, defining an analysis window
+
+**SQL techniques**
+- CTE pipelines; window functions (`row_number`, `ntile`, `count over`)
+- `arg_min` / `arg_max` for first-order attributes; filtered aggregates
+- Date arithmetic for cohorts and delivery times
+- Great-circle (haversine) distance in SQL
+
+**Business analytics**
+- KPI design: GMV, orders, average order value, late rate, repeat rate, review score
+- Year-on-year growth on like-for-like months
+- Cohort retention analysis; RFM customer segmentation
+- Geographic performance analysis; impact sizing (late orders avoided)
+- Customer lifetime value reasoning: why a BG/NBD model isn't appropriate with 97% one-time buyers
+
+**Statistics and causal thinking**
+- OLS with fixed effects (category, state, month) and heteroskedasticity-robust standard errors
+- Dose-response analysis
+- Logistic regression with a convergence check
+- Equal follow-up windows to avoid time-at-risk bias
+- Separating association from causation
+
+**Machine learning**
+- Repeat-purchase propensity model with a time-based split
+- Evaluation for rare outcomes: AUC, average precision, top-decile lift
+
+**Communication**
+- Interactive dashboard (KPI tiles, filters, cohort heatmap) and an executive summary ([SUMMARY.md](SUMMARY.md))
+
+**Engineering**
+- Tested Python package (`src/olist_analytics`), warehouse tests on fixture data with planted edge cases, pinned data download, CI
+
 ## How it's built
 
 ```

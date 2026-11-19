@@ -72,6 +72,32 @@ report.to_frame()       # one row per check
 
 **Limits.** It catches *naive* random generation. Data synthesised to preserve real distributions and correlations (for example by a generative model) is designed to pass checks like these.
 
+## Concepts and techniques
+
+**Data quality and validation**
+- Detecting synthetic or fabricated data before analysis
+- Functional-dependency checks (a city should map to one state)
+- Identifier and text checks (repeat rates, lorem-ipsum vocabulary, regular expressions)
+
+**Statistics**
+- Goodness-of-fit tests: chi-square (category balance, hour-of-day rhythm) and Kolmogorov-Smirnov (uniformity)
+- Association measures: Pearson correlation, Cramér's V
+- Benford's law with mean absolute deviation, including when Benford can't apply
+- Distribution diagnostics: a Poisson signature (variance ≈ mean)
+- Regression R² to show outcomes respond to nothing
+
+**Detector design and evaluation**
+- Several independent kinds of evidence instead of a single test
+- Thresholds calibrated on known-synthetic and known-real data
+- False-positive control with real datasets as negative controls
+- Stating the method's limits (it misses well-made synthetic data)
+
+**Software engineering**
+- A reusable library and command-line tool with Markdown and JSON reports
+- Exit codes for use as a pipeline gate
+- Unit tests on constructed data plus real-file validation
+- Executive summary ([SUMMARY.md](SUMMARY.md))
+
 ## Project structure
 
 ```

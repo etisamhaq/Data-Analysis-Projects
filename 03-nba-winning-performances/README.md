@@ -36,6 +36,38 @@ Across **27,597 regular-season games, 2001-02 to 2024-25** (data-quality exclusi
 - **Coaching:** spend the most time on shot quality, both taking good shots and forcing bad ones; the model weighs your eFG% and your opponent's equally. Ball security is the second lever, worth about half as much.
 - **Forecasting:** use the simple model, Elo with an adaptive home bonus. It matches the more complex models, is interpretable and is cheap to run. To beat it, add information Elo doesn't contain (injuries, lineups, travel) rather than reprocessing box scores.
 
+## Concepts and techniques
+
+**Data preparation and quality**
+- Validation that fails loudly (two rows per game, one winner, scores consistent with results, made ≤ attempted)
+- Completeness checks that detect seasons missing from the source
+- Removing games with untrustworthy results, with a report of every removal
+- Authoritative season labels from the league's game ID (a date rule mislabelled the 2020 bubble)
+
+**Feature engineering**
+- Dean Oliver's Four Factors for both teams via an opponent self-join
+- Leakage-free pre-game features: shifted rolling form, rest days, back-to-backs, rating gaps
+
+**Statistical modelling**
+- Explanatory logistic regression with standardised coefficients (relative factor weights)
+- The difference between explaining an outcome and predicting it
+
+**Machine learning and forecasting**
+- Elo rating system with a margin-of-victory multiplier and between-season regression
+- Concept drift: home advantage declined over time, handled with an adaptive, past-only home bonus
+- Logistic regression and gradient boosting compared against baselines
+- Time-based train / validation / test split; hyperparameter grid search on training seasons only; model choice on validation
+- Probabilistic evaluation: log loss, Brier score, AUC, accuracy, calibration curves
+- Bootstrap confidence intervals for model comparisons
+- Leakage tests: changing a game must not change its own features or forecast
+
+**Business analytics**
+- Recommendations for a coaching staff and for a forecasting team (prefer the simpler model when it's as good)
+- Executive summary ([SUMMARY.md](SUMMARY.md)) and an interactive what-if dashboard (matchup calculator)
+
+**Engineering**
+- Tested Python package (`src/nba_analytics`), pinned and versioned data download, notebook re-executed in CI
+
 ## How it's built
 
 ```

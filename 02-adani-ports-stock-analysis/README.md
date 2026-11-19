@@ -44,6 +44,40 @@ The stock beat the index on return, but with 1.9× the volatility it **lost on r
 - **For risk limits, use GARCH with filtered historical simulation.** It tracks volatility as it changes, keeps the right breach rate, and needs a smaller average buffer than a static historical window. Avoid normal-distribution VaR for a stock like this.
 - **Treat volume spikes as a volatility warning, not a trading signal.**
 
+## Concepts and techniques
+
+**Data preparation and quality**
+- Automatic share-split detection (near-integer Prev Close / Open ratios) and price/volume adjustment
+- Strict parsing and validation that stops on duplicates, unsorted dates, impossible prices or a leftover split
+- Handling a ticker change without dropping rows; aligning stock and index trading days
+
+**Financial analytics**
+- Log returns, compound annual growth rate (CAGR), annualised volatility
+- Risk-adjusted return (return/risk and downside-only, Sortino-style ratios)
+- Drawdowns, crash depth and time to recovery
+- Market model (CAPM-style OLS): beta with confidence interval, correlation, R² (systematic vs company-specific risk), rolling one-year beta
+
+**Time series and risk modelling**
+- GARCH(1,1) volatility model fitted by maximum likelihood, written from scratch, with constraints enforced by reparameterisation
+- Volatility clustering: persistence, shock half-life, long-run volatility
+- Value-at-Risk three ways: historical simulation, GARCH with normal tails, filtered historical simulation
+- VaR backtesting: Kupiec proportion-of-failures and Christoffersen independence tests
+- Strictly out-of-sample rolling forecasts (expanding-window refits)
+
+**Statistical inference**
+- Granger causality via nested-regression F-tests
+- Effect size (variance added) alongside p-values
+- Robustness across lag lengths and sub-samples
+- Multiple-testing correction (Bonferroni)
+
+**Business analytics**
+- Investor and risk-team recommendations: position sizing, risk-model choice, signal vs noise
+- Executive summary ([SUMMARY.md](SUMMARY.md))
+
+**Engineering**
+- R functions in `R/` with testthat unit tests, including GARCH parameter recovery on simulated data and a no-look-ahead test for VaR
+- Results regenerated and checked in CI, run in a pinned Docker image
+
 ## How it's built
 
 ```

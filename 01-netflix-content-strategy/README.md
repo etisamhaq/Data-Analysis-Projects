@@ -31,13 +31,39 @@ Among titles still on Netflix in 2021 (see *Limitations*). Every change below is
 3. **Move on family content early.** Netflix is rebuilding its kids catalogue.
 4. **Ship a content-based recommender from day one.** It needs no viewing history, so it works for new users and new titles, and it can be blended with collaborative filtering once viewing data exists.
 
-## Methods at a glance
+## Concepts and techniques
 
-- **Inference on every trend:** Wilson 95% intervals on yearly shares, logistic-regression trend tests, chi-square tests between years.
-- **Topic modelling:** TF-IDF + NMF on 8,807 descriptions. The number of themes (12) is chosen by **stability across random restarts** (0.872, vs 0.825 for 8 themes and 0.873 for 16), not by eye.
-- **Recommender:** weighted TF-IDF blend of description, genres, director and cast, recommending within type. It's evaluated offline with a **leakage-free proxy** (description-only model, scored on genre agreement) against a **type-matched random baseline**; a naive random baseline overstates the lift, because genres are type-specific.
+**Data preparation and quality**
+- Parsing with explicit formats so bad values surface instead of being guessed (10 unparseable dates found)
+- Fixing a data-entry shift (durations stored in the rating column)
+- Domain-aware validation: for TV shows `release_year` is the latest season, so "content age" is computed for movies only
+- Multi-valued fields exploded so every co-producing country and genre is counted (`explode_list`)
+- Derived indicators: TV, kids, mature and "fresh release" flags
 
-Example from the notebook, "because you watched *Stranger Things*": *Chilling Adventures of Sabrina*, *Nightflyers*, *Helix*, *Anjaan: Special Crimes Unit*, *The Haunting of Hill House*.
+**Statistics and inference**
+- Wilson score confidence intervals for yearly shares
+- Logistic-regression trend tests (odds ratio per year, CI, p-value)
+- Chi-square tests for differences between years
+- Effect sizes alongside p-values (percentage points, odds ratios)
+- Bootstrap confidence intervals for an evaluation metric
+- Selection and survivorship bias: the 2021 snapshot is missing titles that were removed
+
+**Natural language processing and machine learning**
+- TF-IDF text representation (stop words, document-frequency limits, sublinear term frequency)
+- Topic modelling with non-negative matrix factorisation (NMF)
+- Choosing the number of topics by stability across random restarts (Hungarian matching of topics)
+
+**Recommender systems**
+- Content-based recommendation with cosine similarity
+- Hybrid feature blending: description, genres, director and cast, each L2-normalised and weighted
+- Offline evaluation with a proxy target, leakage control (genres excluded from the evaluated model's input) and a type-matched random baseline, which shows how a naive baseline overstates the lift
+
+**Business analytics**
+- Competitive content-strategy analysis, a growth and mix trend read-out, and recommendations for a competing streamer
+- Executive summary ([SUMMARY.md](SUMMARY.md)) and an interactive dashboard
+
+**Engineering**
+- Tested Python package (`src/netflix_analytics`, pytest), notebook re-executed in CI, pinned dependencies, static dashboard built from the same code
 
 ## Data quality
 

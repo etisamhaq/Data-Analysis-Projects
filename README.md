@@ -12,18 +12,24 @@ Business and data analysis case studies in **Python, SQL and R**, each about tel
 | 4 | [Synthetic data sanity check](04-synthetic-data-sanity-check) | Can two popular Kaggle datasets support the findings drawn from them? | No: both are randomly generated. Packaged as `datasanity`, a CLI that flags both and passes all three real datasets | Python, SciPy, CLI |
 | 5 | [Olist e-commerce analytics](05-olist-ecommerce-analytics) ([live dashboard](https://olist-marketplace-dashboard.vercel.app/)) | Where does a marketplace's growth come from, and what does late delivery cost? | GMV +140% year on year, almost all new customers (3% ever return); a late delivery costs about 2 review stars, and Rio de Janeiro is late 2.7× as often as São Paulo | SQL (DuckDB), statsmodels, dashboard |
 
-## What's covered where
+## Concepts and techniques covered
 
-| Area | Techniques | Projects |
+Each project README has a full **Concepts and techniques** section; this is the index. Projects: 1 Netflix · 2 Adani Ports · 3 NBA · 4 datasanity · 5 Olist.
+
+| Area | Concepts and techniques | Projects |
 |---|---|---|
-| **SQL and data modelling** | Staging/mart warehouse, window functions, CTEs, cohort and RFM queries, SQL data tests | 5 |
-| **Business analytics** | KPIs and growth, cohort retention, customer segmentation, effect sizing, recommendations | 1, 5 |
-| **Statistical inference** | Confidence intervals, logistic trend tests, chi-square, bootstrap, regression with controls, multiple-testing correction | 1, 2, 3, 5 |
-| **Machine learning** | Time-split validation, calibration, log loss / Brier / AUC, gradient boosting vs logistic regression, leakage tests | 3, 5 |
-| **Time series and risk** | GARCH volatility, Value-at-Risk with Kupiec/Christoffersen backtests, beta, Granger causality | 2 |
-| **NLP and recommenders** | TF-IDF, NMF topic models with stability selection, content-based recommendation with offline evaluation | 1 |
-| **Data quality** | Validation that fails loudly, documented exclusions, synthetic-data detection | all, especially 4 |
-| **Visualisation** | Consistent, colourblind-safe charts; an interactive dashboard | all, 5 |
+| **Data preparation and quality** | Explicit parsing, validation that fails loudly, completeness checks, quality reports of every exclusion, deduplication, domain-aware fixes (share splits, season IDs, TV release years), synthetic-data detection | all, especially 4 |
+| **SQL and data modelling** | Layered warehouse (staging, marts), fact and dimension tables, CTEs, window functions (`row_number`, `ntile`), cohort and RFM queries, SQL data tests | 5 |
+| **Exploratory and descriptive analytics** | Trends, mix and share analysis, geographic breakdowns, distributions, correlation | 1, 2, 5 |
+| **Statistical inference** | Confidence intervals (Wilson, regression, bootstrap), chi-square, Kolmogorov-Smirnov, logistic trend tests, F-tests, multiple-testing correction, effect sizes alongside p-values | 1, 2, 3, 4, 5 |
+| **Regression and causal thinking** | OLS with fixed effects and robust standard errors, logistic regression, dose-response, equal follow-up windows, association vs causation, selection and survivorship bias | 1, 2, 3, 5 |
+| **Machine learning** | Logistic regression, gradient boosting, Elo ratings, time-based train/validation/test splits, grid search, leakage-free features and leakage tests, concept drift | 3, 5 |
+| **Model evaluation** | Log loss, Brier score, AUC, average precision, calibration curves, top-decile lift, baselines, bootstrap model comparison, offline proxy evaluation | 1, 3, 5 |
+| **Time series and financial risk** | Returns and CAGR, volatility, drawdowns, CAPM beta, GARCH(1,1) by maximum likelihood, Value-at-Risk with Kupiec/Christoffersen backtests, Granger causality | 2 |
+| **NLP and recommender systems** | TF-IDF, NMF topic modelling with stability-based model selection, content-based recommendation, hybrid feature weighting | 1 |
+| **Business analytics** | KPI design, year-on-year growth, cohort retention, RFM segmentation, customer lifetime value reasoning, impact sizing, decision-first recommendations | 1, 2, 3, 5 |
+| **Communication** | Executive summaries (`SUMMARY.md`), interactive dashboards, consistent colourblind-safe charts, methodology documents | all |
+| **Engineering** | Tested packages (pytest, testthat), CLI tool, pinned environments, Docker, CI that re-runs every notebook and analysis | all |
 
 ## How these projects are built
 
@@ -50,7 +56,7 @@ make dashboard    # rebuild the Olist dashboard data
 make help         # all tasks
 ```
 
-Each project folder has its own README and `docs/methodology.md`. Python 3.10-3.12; the R project needs R 4.x with the tidyverse, or Docker.
+Each project folder has its own README, `SUMMARY.md` (one-page executive summary) and `docs/methodology.md`. Python 3.10-3.12; the R project needs R 4.x with the tidyverse, or Docker.
 
 ## License
 
