@@ -2,6 +2,8 @@
 
 **Questions** for an e-commerce marketplace's leadership: where does growth come from, do customers come back, how much does delivery performance affect satisfaction, and should the next investment go into retention or the first-order experience?
 
+**[Live dashboard →](https://olist-marketplace-dashboard.vercel.app/)**
+
 **Tools:** SQL (DuckDB) warehouse with staging models, marts and data tests · Python (pandas, statsmodels, scikit-learn) · interactive web dashboard · **Notebook:** [`olist_analysis.ipynb`](olist_analysis.ipynb) · **Dashboard:** [`dashboard/`](dashboard) · **Methodology:** [`docs/methodology.md`](docs/methodology.md)
 
 ## Findings
@@ -30,7 +32,7 @@ About 99,000 real orders, January 2017 – August 2018 (complete months):
 
 ## Dashboard
 
-[`dashboard/index.html`](dashboard/index.html): KPI tiles, first vs repeat orders by month, late rate and reviews with a **state filter**, lateness dose-response, late rate by state, RFM segments and a cohort-retention heatmap. Light and dark themes. It's a static page, so it can be hosted anywhere (e.g. GitHub Pages or Vercel) or opened locally:
+**Live at https://olist-marketplace-dashboard.vercel.app/** (redeploys automatically when the dashboard folder changes). [`dashboard/index.html`](dashboard/index.html): KPI tiles, first vs repeat orders by month, late rate and reviews with a **state filter**, lateness dose-response, late rate by state, RFM segments and a cohort-retention heatmap. Light and dark themes. It's a static page, so it can also be opened locally:
 
 ```bash
 cd 05-olist-ecommerce-analytics/dashboard && python -m http.server 8000   # then open http://localhost:8000
