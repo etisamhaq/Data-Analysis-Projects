@@ -23,4 +23,4 @@
 - **Medium** on their size: the data is a 2021 snapshot, so titles that left Netflix are missing and early years are under-counted.
 - These are counts of titles added, not viewing hours.
 
-**Details:** [README](README.md) · [Methodology](docs/methodology.md)
+**Details:** [README](README.md) · [Dashboard](https://netflix-catalogue-trends.vercel.app/) · [Methodology](docs/methodology.md)

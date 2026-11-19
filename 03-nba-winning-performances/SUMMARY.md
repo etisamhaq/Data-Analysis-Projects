@@ -21,4 +21,4 @@
 - **High** on the Four Factors weights (27,597 games) and on the forecasting comparison (judged on later seasons never used in training).
 - Two seasons are incomplete in the source data and are excluded; results are for the regular season only.
 
-**Details:** [README](README.md) · [Methodology](docs/methodology.md)
+**Details:** [README](README.md) · [Dashboard](https://nba-win-probability-jade.vercel.app/) · [Methodology](docs/methodology.md)

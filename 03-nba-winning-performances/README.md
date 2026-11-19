@@ -3,6 +3,8 @@
 **Part 1, explain:** of the four things a team controls (shooting efficiency, turnovers, offensive rebounding and free throws), which matters most for winning, and has the 3-point era changed it?
 **Part 2, predict:** before tip-off, how well can a game be called, and do recent-form statistics add anything beyond a team-strength rating?
 
+**[Live dashboard →](https://nba-win-probability-jade.vercel.app/)** (matchup win-probability calculator)
+
 **Tools:** Python (pandas, scikit-learn, statsmodels-style evaluation), pytest · **Notebook:** [`nba_four_factors.ipynb`](nba_four_factors.ipynb) · **Package:** [`src/nba_analytics`](src/nba_analytics) · **Methodology:** [`docs/methodology.md`](docs/methodology.md)
 
 ## Findings

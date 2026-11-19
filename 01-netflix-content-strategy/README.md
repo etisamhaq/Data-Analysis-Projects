@@ -2,6 +2,8 @@
 
 **Question:** what has Netflix been prioritising in what it adds to its catalogue, what should a competing streamer take from it, and can the catalogue alone power a "because you watched" feature?
 
+**[Live dashboard →](https://netflix-catalogue-trends.vercel.app/)** (trends and a searchable recommender)
+
 **Tools:** Python (pandas, statsmodels, scikit-learn), pytest · **Notebook:** [`netflix_content_strategy.ipynb`](netflix_content_strategy.ipynb) · **Package:** [`src/netflix_analytics`](src/netflix_analytics) · **Methodology:** [`docs/methodology.md`](docs/methodology.md)
 
 ## Findings
