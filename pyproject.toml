@@ -33,14 +33,19 @@ dev = [
     "ipykernel==6.29.5",
 ]
 
+[project.scripts]
+datasanity = "datasanity.cli:main"
+
 [tool.setuptools.packages.find]
 where = [
     "03-nba-winning-performances/src",
+    "04-synthetic-data-sanity-check/src",
 ]
 
 [tool.pytest.ini_options]
 testpaths = [
     "03-nba-winning-performances/tests",
+    "04-synthetic-data-sanity-check/tests",
 ]
 addopts = "-q --strict-markers"
 markers = ["data: needs a project's downloaded or bundled dataset"]
