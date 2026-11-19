@@ -5,7 +5,7 @@ R_IMAGE ?= rocker/tidyverse:4.4.2
 DOCKER_R = docker run --rm -v "$(CURDIR)/02-adani-ports-stock-analysis":/work -w /work \
 	--user "$$(id -u):$$(id -g)" -e HOME=/tmp -e R_LIBS_USER=/work/.rlib $(R_IMAGE)
 
-.PHONY: help setup lint format test data notebooks notebooks-write r-test r-run reproduce clean
+.PHONY: help setup lint format test data dashboard notebooks notebooks-write r-test r-run reproduce clean
 
 help:
 	@echo "make setup            Create .venv and install pinned dependencies + this repo's packages"
@@ -13,6 +13,7 @@ help:
 	@echo "make format           Auto-format Python code"
 	@echo "make test             Unit and data-validation tests (pytest)"
 	@echo "make data             Download datasets that are not stored in the repo"
+	@echo "make dashboard        Rebuild the Olist dashboard data from the warehouse"
 	@echo "make notebooks        Re-run every notebook from scratch and fail on any error"
 	@echo "make notebooks-write  Same, and save the fresh outputs"
 	@echo "make r-test           R unit tests (testthat) in Docker"
@@ -36,6 +37,10 @@ test:
 
 data:
 	$(PYTHON) 03-nba-winning-performances/download_data.py
+	$(PYTHON) 05-olist-ecommerce-analytics/download_data.py
+
+dashboard:
+	cd 05-olist-ecommerce-analytics && ../$(PYTHON) dashboard/build_dashboard.py
 
 notebooks:
 	$(PYTHON) tools/run_notebooks.py
@@ -49,7 +54,7 @@ r-test:
 r-run:
 	$(DOCKER_R) Rscript adani_ports_analysis.R
 
-reproduce: data test r-test r-run notebooks-write
+reproduce: data test r-test r-run notebooks-write dashboard
 
 clean:
 	find . -name "__pycache__" -type d -prune -exec rm -rf {} +

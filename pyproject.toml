@@ -41,6 +41,7 @@ where = [
     "01-netflix-content-strategy/src",
     "03-nba-winning-performances/src",
     "04-synthetic-data-sanity-check/src",
+    "05-olist-ecommerce-analytics/src",
 ]
 
 [tool.pytest.ini_options]
@@ -48,6 +49,7 @@ testpaths = [
     "01-netflix-content-strategy/tests",
     "03-nba-winning-performances/tests",
     "04-synthetic-data-sanity-check/tests",
+    "05-olist-ecommerce-analytics/tests",
 ]
 addopts = "-q --strict-markers"
 markers = ["data: needs a project's downloaded or bundled dataset"]

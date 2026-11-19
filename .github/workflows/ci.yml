@@ -40,9 +40,16 @@ jobs:
           path: 03-nba-winning-performances/data
           key: nba-team-statistics-v552
 
+      - name: Cache Olist data (Kaggle version 2)
+        uses: actions/cache@v4
+        with:
+          path: 05-olist-ecommerce-analytics/data
+          key: olist-brazilian-ecommerce-v2
+
       - name: Download data
         run: |
           [ -f 03-nba-winning-performances/data/TeamStatistics.csv ] || python 03-nba-winning-performances/download_data.py
+          [ -f 05-olist-ecommerce-analytics/data/olist_orders_dataset.csv ] || python 05-olist-ecommerce-analytics/download_data.py
 
       - name: Unit and data-validation tests
         run: pytest

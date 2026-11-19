@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Olist Marketplace Dashboard</title>
+<meta name="description" content="Growth, retention and delivery performance for the Olist Brazilian e-commerce marketplace, Jan 2017 - Aug 2018.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f7f7f5; --surface: #fcfcfb; --border: #e4e3df; --grid: #ecebe7;
+  --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #7a7974;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --muted: #9a9993;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --border: #2e2e2c; --grid: #2a2a28;
+    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --muted: #8f8e86;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --border: #2e2e2c; --grid: #2a2a28;
+  --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --muted: #8f8e86;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 Inter, system-ui, sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding: 28px 0 18px; }
+h1 { font-size: 26px; margin: 0; letter-spacing: -.01em; }
+.sub { color: var(--ink-2); margin: 4px 0 0; font-size: 14px; }
+.btn { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.tile .k { font-size: 12px; color: var(--ink-2); }
+.tile .v { font-size: 26px; font-weight: 700; margin: 2px 0; font-variant-numeric: tabular-nums; }
+.tile .n { font-size: 12px; color: var(--ink-3); }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; grid-column: span 6; min-width: 0; }
+.card.wide { grid-column: span 12; }
+.card h2 { font-size: 15px; margin: 0 0 2px; }
+.card p { font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+.chart { position: relative; height: 260px; }
+.chart.tall { height: 420px; }
+.filters { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 13px; color: var(--ink-2); }
+select { font: inherit; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--ink-2); font-weight: 500; }
+.heat { display: grid; gap: 2px; font-size: 11px; }
+.heat div { padding: 4px 2px; text-align: center; border-radius: 3px; font-variant-numeric: tabular-nums; }
+.heat .lab { color: var(--ink-3); text-align: right; padding-right: 6px; background: none; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); margin-bottom: 6px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+footer { color: var(--ink-3); font-size: 12px; margin-top: 18px; }
+footer a { color: var(--ink-2); }
+@media (max-width: 860px) { .card { grid-column: span 12; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Olist marketplace dashboard</h1>
+    <p class="sub">Brazilian e-commerce, January 2017 – August 2018 · built from the DuckDB warehouse marts</p>
+  </div>
+  <button class="btn" id="theme" aria-label="Toggle dark mode">Light / dark</button>
+</header>
+
+<div class="tiles" id="tiles"></div>
+
+<div class="grid">
+  <section class="card wide">
+    <h2>Gross merchandise value and orders</h2>
+    <p>Growth is almost all new customers: returning customers place only a few percent of orders.</p>
+    <div class="legend"><span><i style="background:var(--s1)"></i>First orders</span><span><i style="background:var(--s2)"></i>Repeat orders</span></div>
+    <div class="chart"><canvas id="orders" aria-label="Monthly orders, first vs repeat"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Late deliveries</h2>
+    <div class="filters"><label for="state">State</label><select id="state"></select></div>
+    <div class="chart"><canvas id="late" aria-label="Monthly late delivery rate"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>Average review score</h2>
+    <p>Each lateness spike is matched by a fall in reviews.</p>
+    <div class="chart"><canvas id="review" aria-label="Monthly average review"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>The later the delivery, the worse the review</h2>
+    <p>Share of reviews that are 1–2 stars, by days late.</p>
+    <div class="chart"><canvas id="dose" aria-label="Low review share by days late"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>Late-delivery rate by state</h2>
+    <p>States with 300+ delivered orders. Rio de Janeiro is highlighted: close to sellers, yet often late.</p>
+    <div class="chart tall"><canvas id="states" aria-label="Late rate by state"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Customer segments (RFM)</h2>
+    <p>97% of customers buy once, so segments mostly split by recency and spend.</p>
+    <table id="segments"></table>
+  </section>
+  <section class="card">
+    <h2>Retention by monthly cohort</h2>
+    <p>% of each cohort ordering again N months after their first order.</p>
+    <div class="heat" id="heat"></div>
+  </section>
+</div>
+
+<footer>Data: Olist Brazilian E-Commerce Public Dataset (Kaggle, version 2). Built from <code>sql/02_marts</code> by <code>dashboard/build_dashboard.py</code>.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function () {
+  const root = document.documentElement;
+  try { const t = localStorage.getItem('olist-theme'); if (t) root.dataset.theme = t; } catch (e) {}
+  const css = v => getComputedStyle(root).getPropertyValue(v).trim();
+  const pct = (v, d = 1) => (v * 100).toFixed(d) + '%';
+  const brl = v => 'R$ ' + (v / 1e6).toFixed(1) + 'M';
+  let D, charts = {};
+
+  function base(extra = {}) {
+    return Object.assign({
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: css('--surface'), titleColor: css('--ink'), bodyColor: css('--ink-2'), borderColor: css('--border'), borderWidth: 1, padding: 9 } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: css('--ink-3'), maxRotation: 0, autoSkipPadding: 12 }, border: { color: css('--border') } },
+        y: { grid: { color: css('--grid') }, ticks: { color: css('--ink-3') }, border: { display: false }, beginAtZero: true }
+      }
+    }, extra);
+  }
+  function make(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); }
+
+  function tiles() {
+    const h = D.headline;
+    const items = [
+      ['GMV, Jan–Aug 2018', brl(h.gmv_2018), (h.gmv_growth > 0 ? '+' : '') + pct(h.gmv_growth, 0) + ' vs Jan–Aug 2017'],
+      ['Order growth', '+' + pct(h.orders_growth, 0), 'same months, year on year'],
+      ['Average order, 2018', 'R$ ' + h.aov_2018.toFixed(0), 'items + freight'],
+      ['Customers who buy again', pct(h.repeat_rate), 'ever, across the whole period'],
+      ['Late deliveries', pct(h.late_rate), 'of delivered orders'],
+      ['Cost of a late delivery', h.late_effect_stars.toFixed(1) + ' stars', '95% CI ' + h.late_effect_ci[0].toFixed(2) + ' to ' + h.late_effect_ci[1].toFixed(2) + ', with controls'],
+    ];
+    document.getElementById('tiles').innerHTML = items.map(([k, v, n]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join('');
+  }
+
+  function orders() {
+    const m = D.monthly;
+    make('orders', { type: 'bar', data: { labels: m.map(r => r.month), datasets: [
+      { label: 'First orders', data: m.map(r => r.first_orders), backgroundColor: css('--s1'), stack: 'o', borderRadius: 2 },
+      { label: 'Repeat orders', data: m.map(r => r.repeat_orders), backgroundColor: css('--s2'), stack: 'o', borderRadius: 2 }] },
+      options: base({ plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: {
+        footer: items => { const r = m[items[0].dataIndex]; return 'GMV ' + brl(r.gmv) + ' · avg order R$ ' + r.avg_order_value.toFixed(0); } } } },
+        scales: { ...base().scales, x: { ...base().scales.x, stacked: true }, y: { ...base().scales.y, stacked: true } } }) });
+  }
+
+  function delivery() {
+    const state = document.getElementById('state').value;
+    const rows = D.delivery_by_state_month.filter(r => r.state === state);
+    const labels = rows.map(r => r.month);
+    make('late', { type: 'line', data: { labels, datasets: [{ label: 'Late rate', data: rows.map(r => r.late_rate * 100), borderColor: css('--s2'), backgroundColor: css('--s2'), borderWidth: 2, pointRadius: 2 }] },
+      options: base({ plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.parsed.y.toFixed(1)}% late (${rows[c.dataIndex].orders} orders)` } } },
+        scales: { ...base().scales, y: { ...base().scales.y, ticks: { color: css('--ink-3'), callback: v => v + '%' } } } }) });
+    make('review', { type: 'line', data: { labels, datasets: [{ label: 'Average review', data: rows.map(r => r.avg_review), borderColor: css('--s1'), backgroundColor: css('--s1'), borderWidth: 2, pointRadius: 2 }] },
+      options: base({ plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.parsed.y.toFixed(2)} stars` } } },
+        scales: { ...base().scales, y: { ...base().scales.y, beginAtZero: false, suggestedMin: 3.4, suggestedMax: 4.6 } } }) });
+  }
+
+  function dose() {
+    const d = D.dose_response;
+    make('dose', { type: 'bar', data: { labels: d.map(r => r.days_late), datasets: [{ label: '1-2 star share', data: d.map(r => r.low_review_share * 100),
+      backgroundColor: d.map((_, i) => i === 0 ? css('--s1') : css('--s2')), borderRadius: 4, maxBarThickness: 46 }] },
+      options: base({ plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.parsed.y.toFixed(0)}% low reviews · avg ${d[c.dataIndex].avg_review.toFixed(2)} stars · ${d[c.dataIndex].orders.toLocaleString()} orders` } } },
+        scales: { ...base().scales, y: { ...base().scales.y, max: 100, ticks: { color: css('--ink-3'), callback: v => v + '%' } } } }) });
+  }
+
+  function states() {
+    const s = D.states;
+    make('states', { type: 'bar', data: { labels: s.map(r => r.state), datasets: [{ label: 'Late rate', data: s.map(r => r.late_rate * 100),
+      backgroundColor: s.map(r => r.state === 'RJ' ? css('--s2') : css('--muted')), borderRadius: 3, maxBarThickness: 16 }] },
+      options: base({ indexAxis: 'y', interaction: { mode: 'nearest', axis: 'y', intersect: false },
+        plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => { const r = s[c.dataIndex]; return ` ${r.late_rate * 100 > 0 ? (r.late_rate * 100).toFixed(1) : 0}% late · ${r.orders.toLocaleString()} orders · median ${Math.round(r.median_distance_km)} km`; } } } },
+        scales: { x: { ...base().scales.y, ticks: { color: css('--ink-3'), callback: v => v + '%' } }, y: { ...base().scales.x, grid: { display: false }, ticks: { color: css('--ink-3'), autoSkip: false, font: { size: 11 } } } } }) });
+  }
+
+  function segments() {
+    const total = D.segments.reduce((a, r) => a + r.customers, 0), spend = D.segments.reduce((a, r) => a + r.total_spend, 0);
+    document.getElementById('segments').innerHTML = '<tr><th>Segment</th><th>Customers</th><th>% customers</th><th>Avg spend</th><th>% of spend</th></tr>' +
+      D.segments.map(r => `<tr><td>${r.segment}</td><td>${r.customers.toLocaleString()}</td><td>${pct(r.customers / total)}</td><td>R$ ${r.avg_spend.toFixed(0)}</td><td>${pct(r.total_spend / spend)}</td></tr>`).join('');
+  }
+
+  function heat() {
+    const cohorts = [...new Set(D.cohorts.map(r => r.cohort))].sort();
+    const lookup = {}; D.cohorts.forEach(r => lookup[r.cohort + '|' + r.months_since] = r.retention);
+    const el = document.getElementById('heat');
+    el.style.gridTemplateColumns = '60px repeat(12, 1fr)';
+    const blue = css('--s1');
+    let html = '<div class="lab"></div>' + Array.from({ length: 12 }, (_, i) => `<div class="lab" style="text-align:center">${i + 1}</div>`).join('');
+    cohorts.forEach(c => {
+      html += `<div class="lab">${c}</div>`;
+      for (let m = 1; m <= 12; m++) {
+        const v = lookup[c + '|' + m];
+        html += v === undefined ? '<div></div>' : `<div title="${c}, month ${m}: ${(v * 100).toFixed(2)}%" style="background:color-mix(in srgb, ${blue} ${Math.min(100, v * 100 / 0.8 * 100).toFixed(0)}%, transparent)">${(v * 100).toFixed(1)}</div>`;
+      }
+    });
+    el.innerHTML = html;
+  }
+
+  function drawAll() { Chart.defaults.font.family = 'Inter, system-ui, sans-serif'; Chart.defaults.color = css('--ink-3'); orders(); delivery(); dose(); states(); heat(); }
+
+  document.getElementById('theme').onclick = () => {
+    root.dataset.theme = getComputedStyle(root).colorScheme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('olist-theme', root.dataset.theme); } catch (e) {}
+    drawAll();
+  };
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (!root.dataset.theme) drawAll(); });
+
+  fetch('data.json').then(r => r.json()).then(d => {
+    D = d; tiles(); segments();
+    const states = ['All states', ...new Set(D.delivery_by_state_month.filter(r => r.state !== 'All states').map(r => r.state))].sort((a, b) => a === 'All states' ? -1 : b === 'All states' ? 1 : a.localeCompare(b));
+    const sel = document.getElementById('state');
+    sel.innerHTML = states.map(s => `<option>${s}</option>`).join('');
+    sel.onchange = delivery;
+    drawAll();
+  });
+})();
+</script>
+</body>
+</html>

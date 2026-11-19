@@ -9,6 +9,7 @@ __pycache__/
 
 # Downloaded data (see each project's download script)
 03-nba-winning-performances/data/
+05-olist-ecommerce-analytics/data/
 
 # OS
 .DS_Store
