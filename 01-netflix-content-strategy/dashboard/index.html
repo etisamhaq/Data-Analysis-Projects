@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netflix Catalogue Trends</title>
+<meta name="description" content="How Netflix's catalogue additions changed from 2015 to 2021, with a searchable content-based recommender.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f7f7f5; --surface: #fcfcfb; --border: #e4e3df; --grid: #ecebe7;
+  --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #7a7974;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #6250d6; --muted: #9a9993;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --border: #2e2e2c; --grid: #2a2a28;
+    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #9085e9; --muted: #8f8e86;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --border: #2e2e2c; --grid: #2a2a28;
+  --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #9085e9; --muted: #8f8e86;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 Inter, system-ui, sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding: 28px 0 18px; }
+h1 { font-size: 26px; margin: 0; }
+.sub { color: var(--ink-2); margin: 4px 0 0; font-size: 14px; }
+.btn { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.tile .k { font-size: 12px; color: var(--ink-2); }
+.tile .v { font-size: 26px; font-weight: 700; margin: 2px 0; font-variant-numeric: tabular-nums; }
+.tile .n { font-size: 12px; color: var(--ink-3); }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; grid-column: span 6; min-width: 0; }
+.card.wide { grid-column: span 12; }
+.card h2 { font-size: 15px; margin: 0 0 2px; }
+.card p { font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+.chart { position: relative; height: 260px; }
+.chart.tall { height: 360px; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); margin-bottom: 6px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--ink-2); cursor: pointer; }
+.chip.on { border-color: var(--ink-2); color: var(--ink); font-weight: 600; }
+input[type=search] { width: 100%; font: inherit; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); }
+.suggest { border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; max-height: 240px; overflow-y: auto; display: none; }
+.suggest div { padding: 7px 12px; cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--border); }
+.suggest div:hover, .suggest div:focus { background: var(--bg); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+th, td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+th { color: var(--ink-2); font-weight: 500; }
+.note { font-size: 12px; color: var(--ink-3); margin-top: 10px; }
+footer { color: var(--ink-3); font-size: 12px; margin-top: 18px; }
+@media (max-width: 860px) { .card { grid-column: span 12; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Netflix catalogue trends, 2015–2021</h1>
+    <p class="sub" id="subtitle">What Netflix added to its catalogue, and a recommender built from the catalogue alone</p>
+  </div>
+  <button class="btn" id="theme" aria-label="Toggle dark mode">Light / dark</button>
+</header>
+
+<div class="tiles" id="tiles"></div>
+
+<div class="grid">
+  <section class="card wide">
+    <h2>Because you watched…</h2>
+    <p>Type a title. Recommendations blend description (50%), genres (30%), director and cast (10% each), and stay within type.</p>
+    <input type="search" id="search" placeholder="e.g. Stranger Things, The Irishman, Narcos" autocomplete="off" aria-label="Search titles">
+    <div class="suggest" id="suggest" role="listbox"></div>
+    <div id="recs"></div>
+    <div class="note" id="eval-note"></div>
+  </section>
+
+  <section class="card">
+    <h2>Titles added per year</h2>
+    <p>2021 runs to 25 September only.</p>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Movies</span><span><i style="background:var(--s2)"></i>TV shows</span></div>
+    <div class="chart"><canvas id="additions" aria-label="Titles added per year"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>TV share of additions</h2>
+    <p>Shaded band: 95% interval. The 2015–16 shares rest on few titles.</p>
+    <div class="chart"><canvas id="tv" aria-label="TV share with confidence band"></canvas></div>
+  </section>
+
+  <section class="card wide">
+    <h2>Where the content comes from</h2>
+    <p>Share of country mentions among titles added each year. Every co-producing country is counted. Pick countries to compare.</p>
+    <div class="chips" id="country-chips"></div>
+    <div class="chart"><canvas id="countries" aria-label="Country share over time"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Genres gaining and losing share</h2>
+    <p>Change in share of additions, 2020–21 vs 2016–17 (percentage points).</p>
+    <div class="chart tall"><canvas id="genres" aria-label="Genre share change"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>Themes in the descriptions</h2>
+    <p>Topic model of 8,807 descriptions (12 themes, labelled by top words). Same comparison as genres.</p>
+    <div class="chart tall"><canvas id="themes" aria-label="Theme share change"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>New releases or back catalogue? (movies)</h2>
+    <p>Share of movies added within a year of their release, with 95% interval.</p>
+    <div class="chart"><canvas id="fresh" aria-label="Fresh movie share"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>Who is the catalogue for?</h2>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Mature (TV-MA, R, NC-17)</span><span><i style="background:var(--s2)"></i>Kids and family (TV-Y to PG)</span></div>
+    <div class="chart"><canvas id="audience" aria-label="Audience mix"></canvas></div>
+  </section>
+</div>
+
+<footer>A 2021 snapshot: titles removed before then are missing, so earlier years are under-counted. Data: Netflix Movies and TV Shows (Kaggle, Shivam Bansal). Code: <a href="https://github.com/etisamhaq/Data-Analysis-Projects/tree/main/01-netflix-content-strategy" style="color:inherit">GitHub</a>.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function () {
+  const root = document.documentElement;
+  try { const t = localStorage.getItem('netflix-theme'); if (t) root.dataset.theme = t; } catch (e) {}
+  const css = v => getComputedStyle(root).getPropertyValue(v).trim();
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let D, charts = {}, picked = ['United States', 'India', 'United Kingdom'];
+  const SERIES = ['--s1', '--s2', '--s3', '--s4'];
+
+  function base(extra = {}) {
+    return Object.assign({
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: css('--surface'), titleColor: css('--ink'), bodyColor: css('--ink-2'), borderColor: css('--border'), borderWidth: 1, padding: 9 } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: css('--ink-3'), maxRotation: 0 }, border: { color: css('--border') } },
+        y: { grid: { color: css('--grid') }, ticks: { color: css('--ink-3') }, border: { display: false }, beginAtZero: true }
+      }
+    }, extra);
+  }
+  function make(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); }
+  const pctAxis = { ticks: { callback: v => v + '%' } };
+
+  function band(id, rows, color, max) {
+    const labels = rows.map(r => r.year);
+    make(id, { type: 'line', data: { labels, datasets: [
+      { data: rows.map(r => r.high), borderWidth: 0, pointRadius: 0, fill: '+1', backgroundColor: color + '30' },
+      { data: rows.map(r => r.low), borderWidth: 0, pointRadius: 0, fill: false },
+      { data: rows.map(r => r.share), borderColor: color, backgroundColor: color, borderWidth: 2, pointRadius: 3 }] },
+      options: base({ plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, filter: i => i.datasetIndex === 2,
+        callbacks: { label: c => { const r = rows[c.dataIndex]; return ` ${r.share.toFixed(1)}% (95% CI ${r.low.toFixed(1)}–${r.high.toFixed(1)}, ${r.n} titles)`; } } } },
+        scales: { ...base().scales, y: { ...base().scales.y, max, ticks: { color: css('--ink-3'), callback: v => v + '%' } } } }) });
+  }
+
+  function movers(id, rows) {
+    const r = [...rows].sort((a, b) => b.change - a.change);
+    make(id, { type: 'bar', data: { labels: r.map(x => x.name), datasets: [{ data: r.map(x => x.change),
+      backgroundColor: r.map(x => x.change >= 0 ? css('--s1') : css('--s2')), borderRadius: 3, maxBarThickness: 16 }] },
+      options: base({ indexAxis: 'y', interaction: { mode: 'nearest', axis: 'y', intersect: false },
+        plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.parsed.x > 0 ? '+' : ''}${c.parsed.x.toFixed(1)} percentage points` } } },
+        scales: { x: { ...base().scales.y, beginAtZero: false }, y: { ...base().scales.x, ticks: { color: css('--ink-3'), autoSkip: false, font: { size: 11 } } } } }) });
+  }
+
+  function countries() {
+    document.getElementById('country-chips').innerHTML = Object.keys(D.countries).map(c =>
+      `<button class="chip${picked.includes(c) ? ' on' : ''}" data-c="${esc(c)}" aria-pressed="${picked.includes(c)}">${esc(c)}</button>`).join('');
+    document.querySelectorAll('#country-chips .chip').forEach(b => b.onclick = () => {
+      const c = b.dataset.c;
+      picked = picked.includes(c) ? picked.filter(x => x !== c) : [...picked, c].slice(-4);
+      countries();
+    });
+    const labels = D.countries['United States'].map(r => r.year);
+    make('countries', { type: 'line', data: { labels, datasets: picked.map((c, i) => ({ label: c, data: D.countries[c].map(r => r.share),
+      borderColor: css(SERIES[i]), backgroundColor: css(SERIES[i]), borderWidth: 2, pointRadius: 3 })) },
+      options: base({ plugins: { ...base().plugins, legend: { display: true, position: 'top', align: 'start', labels: { color: css('--ink-2'), boxWidth: 14, boxHeight: 3 } },
+        tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%` } } },
+        scales: { ...base().scales, y: { ...base().scales.y, ticks: { color: css('--ink-3'), callback: v => v + '%' } } } }) });
+  }
+
+  function drawAll() {
+    Chart.defaults.font.family = 'Inter, system-ui, sans-serif'; Chart.defaults.color = css('--ink-3');
+    const a = D.additions;
+    make('additions', { type: 'bar', data: { labels: a.map(r => r.year), datasets: [
+      { label: 'Movies', data: a.map(r => r.movies), backgroundColor: css('--s1'), stack: 's', borderRadius: 2 },
+      { label: 'TV shows', data: a.map(r => r.tv), backgroundColor: css('--s2'), stack: 's', borderRadius: 2 }] },
+      options: base({ scales: { ...base().scales, x: { ...base().scales.x, stacked: true }, y: { ...base().scales.y, stacked: true } } }) });
+    band('tv', D.tv_share, css('--s2'), 60);
+    band('fresh', D.fresh_movies, css('--s3'), 100);
+    const k = D.kids_share, m = D.mature_share;
+    make('audience', { type: 'line', data: { labels: k.map(r => r.year), datasets: [
+      { label: 'Mature', data: m.map(r => r.share), borderColor: css('--s1'), backgroundColor: css('--s1'), borderWidth: 2, pointRadius: 3 },
+      { label: 'Kids and family', data: k.map(r => r.share), borderColor: css('--s2'), backgroundColor: css('--s2'), borderWidth: 2, pointRadius: 3 }] },
+      options: base({ plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%` } } },
+        scales: { ...base().scales, y: { ...base().scales.y, max: 55, ticks: { color: css('--ink-3'), callback: v => v + '%' } } } }) });
+    movers('genres', D.genre_movers);
+    movers('themes', D.theme_movers);
+    countries();
+  }
+
+  function tiles() {
+    const tv = D.tv_share, f = D.fresh_movies, k = D.kids_share, e = D.recommender_eval;
+    const find = (rows, y) => rows.find(r => r.year === y);
+    const items = [
+      ['Titles in the catalogue', D.titles_total.toLocaleString(), 'snapshot to ' + D.last_added],
+      ['TV share of additions', find(tv, 2021).share.toFixed(0) + '%', 'up from ' + find(tv, 2018).share.toFixed(0) + '% in 2018'],
+      ['India, share of country mentions', D.countries['India'].find(r => r.year === 2021).share.toFixed(1) + '%', 'peaked at ' + D.countries['India'].find(r => r.year === 2018).share.toFixed(1) + '% in 2018'],
+      ['Movies added fresh', find(f, 2021).share.toFixed(0) + '%', 'down from ' + find(f, 2016).share.toFixed(0) + '% in 2016'],
+      ['Kids and family share', find(k, 2021).share.toFixed(1) + '%', 'up from ' + find(k, 2018).share.toFixed(1) + '% in 2018'],
+      ['Recommender lift', '+' + (e.lift * 100).toFixed(1) + ' pts', 'genre agreement vs random same-type'],
+    ];
+    document.getElementById('tiles').innerHTML = items.map(([a, b, c]) => `<div class="tile"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`).join('');
+  }
+
+  function recommender() {
+    const input = document.getElementById('search'), box = document.getElementById('suggest');
+    const lower = D.catalogue.map(t => t[0].toLowerCase());
+    const show = i => {
+      const t = D.catalogue[i];
+      box.style.display = 'none'; input.value = t[0];
+      document.getElementById('recs').innerHTML = `<table><tr><th>Because you watched <em>${esc(t[0])}</em> (${esc(t[1])}, ${t[2]})</th><th>Genres</th><th>Year</th></tr>` +
+        D.recs[i].map(j => { const r = D.catalogue[j]; return `<tr><td>${esc(r[0])}</td><td>${esc(r[3])}</td><td>${r[2]}</td></tr>`; }).join('') + '</table>';
+    };
+    input.oninput = () => {
+      const q = input.value.trim().toLowerCase();
+      if (q.length < 2) { box.style.display = 'none'; return; }
+      const hits = [];
+      for (let i = 0; i < lower.length && hits.length < 10; i++) if (lower[i].includes(q)) hits.push(i);
+      hits.sort((a, b) => lower[a].indexOf(q) - lower[b].indexOf(q));
+      box.innerHTML = hits.length ? hits.map(i => `<div role="option" tabindex="0" data-i="${i}">${esc(D.catalogue[i][0])} <span style="color:var(--ink-3)">· ${esc(D.catalogue[i][1])}, ${D.catalogue[i][2]}</span></div>`).join('') : '<div>No match</div>';
+      box.style.display = 'block';
+      box.querySelectorAll('[data-i]').forEach(el => { el.onclick = () => show(+el.dataset.i); el.onkeydown = e => { if (e.key === 'Enter') show(+el.dataset.i); }; });
+    };
+    const start = lower.indexOf('stranger things'); if (start >= 0) show(start);
+    const e = D.recommender_eval;
+    document.getElementById('eval-note').textContent = `Offline check: recommendations from descriptions alone share a genre ${(e.model_genre_agreement * 100).toFixed(1)}% of the time, vs ${(e.random_same_type_agreement * 100).toFixed(1)}% for random titles of the same type (+${(e.lift * 100).toFixed(1)} points, 95% CI ${(e.lift_ci_low * 100).toFixed(1)}–${(e.lift_ci_high * 100).toFixed(1)}). No viewing data, so this measures relevance, not clicks.`;
+  }
+
+  document.getElementById('theme').onclick = () => {
+    root.dataset.theme = getComputedStyle(root).colorScheme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('netflix-theme', root.dataset.theme); } catch (e) {}
+    drawAll();
+  };
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (!root.dataset.theme) drawAll(); });
+
+  fetch('data.json').then(r => r.json()).then(d => { D = d; tiles(); recommender(); drawAll(); });
+})();
+</script>
+</body>
+</html>

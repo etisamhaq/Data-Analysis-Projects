@@ -13,7 +13,7 @@ help:
 	@echo "make format           Auto-format Python code"
 	@echo "make test             Unit and data-validation tests (pytest)"
 	@echo "make data             Download datasets that are not stored in the repo"
-	@echo "make dashboard        Rebuild the Olist dashboard data from the warehouse"
+	@echo "make dashboard        Rebuild the data behind the Netflix, NBA and Olist dashboards"
 	@echo "make notebooks        Re-run every notebook from scratch and fail on any error"
 	@echo "make notebooks-write  Same, and save the fresh outputs"
 	@echo "make r-test           R unit tests (testthat) in Docker"
@@ -40,6 +40,8 @@ data:
 	$(PYTHON) 05-olist-ecommerce-analytics/download_data.py
 
 dashboard:
+	cd 01-netflix-content-strategy && ../$(PYTHON) dashboard/build_dashboard.py
+	cd 03-nba-winning-performances && ../$(PYTHON) dashboard/build_dashboard.py
 	cd 05-olist-ecommerce-analytics && ../$(PYTHON) dashboard/build_dashboard.py
 
 notebooks:

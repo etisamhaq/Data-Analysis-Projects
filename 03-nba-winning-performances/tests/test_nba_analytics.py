@@ -95,6 +95,17 @@ def test_elo_is_zero_sum_and_pregame(games):
     assert not np.allclose(after["p_home_elo"].iloc[i + 1:], before["p_home_elo"].iloc[i + 1:])
 
 
+def test_post_game_ratings_chain_into_the_next_game(games):
+    home = data.home_view(games)
+    r = elo.run_elo(home, elo.EloParams(home_advantage=0)).join(home[["teamId", "opponentTeamId"]])
+    assert np.allclose(r["post_home"] + r["post_away"], r["elo_home"] + r["elo_away"])   # zero-sum
+    # a team's post-game rating is its pre-game rating at its next game (same season, so no regression)
+    long = pd.concat([r[["teamId", "elo_home", "post_home"]].set_axis(["team", "pre", "post"], axis=1),
+                      r[["opponentTeamId", "elo_away", "post_away"]].set_axis(["team", "pre", "post"], axis=1)]).sort_index(kind="stable")
+    for _, g in long.groupby("team"):
+        assert np.allclose(g["post"].to_numpy()[:-1], g["pre"].to_numpy()[1:])
+
+
 def test_adaptive_home_bonus_uses_only_past_seasons(games):
     two = pd.concat([games, games.assign(gameId=games["gameId"] + 10_000,
                                          date=games["date"] + pd.Timedelta(days=365), season=games["season"] + 1)])

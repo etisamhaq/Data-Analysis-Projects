@@ -62,7 +62,7 @@ def margin_multiplier(margin: float, winner_elo_edge: float) -> float:
 
 def run_elo(home_games: pd.DataFrame, params: EloParams | None = None) -> pd.DataFrame:
     """
-    Walk through games in date order and return pre-game ratings and the home-win probability.
+    Walk through games in date order and return pre-game ratings, the home-win probability and post-game ratings.
 
     `home_games`: one row per game (home team's view) with date, season, teamId, opponentTeamId, win,
     teamScore, opponentScore.
@@ -72,7 +72,7 @@ def run_elo(home_games: pd.DataFrame, params: EloParams | None = None) -> pd.Dat
     bonus = season_home_bonus(games, params)
     ratings: dict[int, float] = {}
     last_season: dict[int, int] = {}
-    out = np.empty((len(games), 3))
+    out = np.empty((len(games), 5))
 
     for i, g in enumerate(games.itertuples(index=False)):
         for team in (g.teamId, g.opponentTeamId):
@@ -85,14 +85,15 @@ def run_elo(home_games: pd.DataFrame, params: EloParams | None = None) -> pd.Dat
         home_elo, away_elo = ratings[g.teamId], ratings[g.opponentTeamId]
         hfa = bonus[g.season]
         p_home = expected_score(home_elo + hfa, away_elo)
-        out[i] = (home_elo, away_elo, p_home)
 
         edge = (home_elo + hfa - away_elo) * (1 if g.win == 1 else -1)
         shift = params.k * margin_multiplier(g.teamScore - g.opponentScore, edge) * (g.win - p_home)
         ratings[g.teamId] += shift
         ratings[g.opponentTeamId] -= shift
+        out[i] = (home_elo, away_elo, p_home, ratings[g.teamId], ratings[g.opponentTeamId])
 
-    result = pd.DataFrame(out, columns=["elo_home", "elo_away", "p_home_elo"], index=games.index)
+    # elo_* are pre-game (what a forecast may use); post_* are after the result, for rating histories only
+    result = pd.DataFrame(out, columns=["elo_home", "elo_away", "p_home_elo", "post_home", "post_away"], index=games.index)
     return result.reindex(home_games.index)
 
 

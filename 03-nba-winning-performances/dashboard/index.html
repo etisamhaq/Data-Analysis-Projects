@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NBA Win Probability</title>
+<meta name="description" content="Pre-game NBA win probabilities from an Elo model with an adaptive home-court bonus, plus what decides games.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f7f7f5; --surface: #fcfcfb; --border: #e4e3df; --grid: #ecebe7;
+  --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #7a7974;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --muted: #9a9993;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --border: #2e2e2c; --grid: #2a2a28;
+    --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --muted: #8f8e86;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --border: #2e2e2c; --grid: #2a2a28;
+  --ink: #f0efec; --ink-2: #c3c2b7; --ink-3: #8f8e86;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --muted: #8f8e86;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 Inter, system-ui, sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding: 28px 0 18px; }
+h1 { font-size: 26px; margin: 0; }
+.sub { color: var(--ink-2); margin: 4px 0 0; font-size: 14px; }
+.btn { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; grid-column: span 6; min-width: 0; }
+.card.wide { grid-column: span 12; }
+.card h2 { font-size: 15px; margin: 0 0 2px; }
+.card p { font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+.chart { position: relative; height: 270px; }
+.chart.tall { height: 560px; }
+select { font: inherit; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); min-width: 0; width: 100%; }
+.calc { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: end; }
+.calc label { font-size: 12px; color: var(--ink-2); display: flex; flex-direction: column; gap: 4px; }
+.vs { color: var(--ink-3); padding-bottom: 8px; }
+.result { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.side { border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.side .k { font-size: 12px; color: var(--ink-2); }
+.side .v { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.side .n { font-size: 12px; color: var(--ink-3); }
+.bar { height: 10px; border-radius: 5px; display: flex; overflow: hidden; margin-top: 12px; }
+.note { font-size: 12px; color: var(--ink-3); margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--ink-2); font-weight: 500; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); margin-bottom: 6px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+footer { color: var(--ink-3); font-size: 12px; margin-top: 18px; }
+@media (max-width: 860px) { .card { grid-column: span 12; } .calc { grid-template-columns: 1fr; } .vs { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>NBA win probability</h1>
+    <p class="sub" id="subtitle">Elo ratings with an adaptive home-court bonus · regular-season games 2001-02 to 2024-25</p>
+  </div>
+  <button class="btn" id="theme" aria-label="Toggle dark mode">Light / dark</button>
+</header>
+
+<div class="grid">
+  <section class="card wide">
+    <h2>Matchup calculator</h2>
+    <p>Pick a home and an away team. Probabilities use end-of-season ratings and the home bonus the model would carry into the next season.</p>
+    <div class="calc">
+      <label>Home team <select id="home"></select></label>
+      <div class="vs">vs</div>
+      <label>Away team <select id="away"></select></label>
+    </div>
+    <div class="result" id="result"></div>
+    <div class="note" id="calc-note"></div>
+  </section>
+
+  <section class="card">
+    <h2>Team ratings</h2>
+    <p id="ratings-sub">Elo rating at the end of the season (1500 = average).</p>
+    <div class="chart tall"><canvas id="ratings" aria-label="Team Elo ratings"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>Rating history</h2>
+    <p>End-of-season rating for the two teams in the calculator.</p>
+    <div class="legend" id="hist-legend"></div>
+    <div class="chart"><canvas id="history" aria-label="Rating history"></canvas></div>
+    <h2 style="margin-top:18px">Home advantage has shrunk</h2>
+    <p>Share of games won by the home team, by season. A fixed home bonus would now be too large, so the model re-estimates it each season from past seasons only.</p>
+    <div class="chart" style="height:200px"><canvas id="homeadv" aria-label="Home win rate by season"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>What decides games</h2>
+    <p>Games won by the team that was better at each of the Four Factors.</p>
+    <div class="chart" style="height:220px"><canvas id="factors" aria-label="Win rate by factor"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>How good are the forecasts?</h2>
+    <p>Test seasons never used to fit or choose the model (2020-21, 2022-23 to 2024-25).</p>
+    <table id="models"></table>
+    <div class="note">Lower log loss and Brier score are better. Recent-form features add no reliable improvement over Elo.</div>
+  </section>
+
+  <section class="card wide">
+    <h2>Are the probabilities trustworthy?</h2>
+    <p>Predicted vs actual home-win rate on the test seasons: a calibrated model sits on the diagonal.</p>
+    <div class="chart"><canvas id="calibration" aria-label="Calibration chart"></canvas></div>
+  </section>
+</div>
+
+<footer>Data: Historical NBA Data and Player Box Scores (Kaggle, Eoin A Moore, version 552). Model and code: <a href="https://github.com/etisamhaq/Data-Analysis-Projects/tree/main/03-nba-winning-performances" style="color:inherit">GitHub</a>. Not betting advice.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function () {
+  const root = document.documentElement;
+  try { const t = localStorage.getItem('nba-theme'); if (t) root.dataset.theme = t; } catch (e) {}
+  const css = v => getComputedStyle(root).getPropertyValue(v).trim();
+  let D, charts = {};
+  const expected = (a, b) => 1 / (1 + Math.pow(10, (b - a) / 400));
+
+  function base(extra = {}) {
+    return Object.assign({
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: css('--surface'), titleColor: css('--ink'), bodyColor: css('--ink-2'), borderColor: css('--border'), borderWidth: 1, padding: 9 } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: css('--ink-3'), maxRotation: 0, autoSkipPadding: 12 }, border: { color: css('--border') } },
+        y: { grid: { color: css('--grid') }, ticks: { color: css('--ink-3') }, border: { display: false } }
+      }
+    }, extra);
+  }
+  function make(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); }
+  const rating = t => D.teams.find(x => x.team === t).rating;
+
+  function calculator() {
+    const h = document.getElementById('home').value, a = document.getElementById('away').value;
+    if (h === a) { document.getElementById('result').innerHTML = '<div class="note">Pick two different teams.</div>'; return; }
+    const p = expected(rating(h) + D.home_bonus, rating(a));
+    document.getElementById('result').innerHTML = `
+      <div class="side"><div class="k">${h} (home)</div><div class="v">${(p * 100).toFixed(0)}%</div><div class="n">rating ${rating(h).toFixed(0)} + ${D.home_bonus.toFixed(0)} home bonus</div></div>
+      <div class="side"><div class="k">${a} (away)</div><div class="v">${((1 - p) * 100).toFixed(0)}%</div><div class="n">rating ${rating(a).toFixed(0)}</div></div>
+      <div class="bar" style="grid-column:1/-1"><div style="width:${p * 100}%;background:${css('--s1')}"></div><div style="width:${(1 - p) * 100}%;background:${css('--s2')}"></div></div>`;
+    document.getElementById('calc-note').textContent = `Two equal teams: home side wins ${(expected(1500 + D.home_bonus, 1500) * 100).toFixed(1)}% of the time. Ratings as of the end of ${D.as_of}; no injuries or roster changes are included.`;
+    history(h, a);
+  }
+
+  function ratings() {
+    const t = D.teams;
+    make('ratings', { type: 'bar', data: { labels: t.map(r => r.team), datasets: [{ data: t.map(r => r.rating - 1500), base: 0,
+      backgroundColor: t.map(r => r.rating >= 1500 ? css('--s1') : css('--s2')), borderRadius: 3, maxBarThickness: 14 }] },
+      options: base({ indexAxis: 'y', interaction: { mode: 'nearest', axis: 'y', intersect: false },
+        plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` Rating ${t[c.dataIndex].rating.toFixed(0)}` } } },
+        scales: { x: { ...base().scales.y, ticks: { color: css('--ink-3'), callback: v => (v > 0 ? '+' : '') + v } },
+                  y: { ...base().scales.x, ticks: { color: css('--ink-3'), autoSkip: false, font: { size: 10 } } } } }) });
+  }
+
+  function history(h, a) {
+    const series = [[h, css('--s1')], [a, css('--s2')]];
+    const labels = D.rating_history[h].map(r => r.season);
+    document.getElementById('hist-legend').innerHTML = series.map(([n, c]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
+    make('history', { type: 'line', data: { labels, datasets: series.map(([n, c]) => ({ label: n,
+      data: labels.map(s => (D.rating_history[n].find(r => r.season === s) || {}).rating ?? null), borderColor: c, backgroundColor: c, borderWidth: 2, pointRadius: 2 })) },
+      options: base({ scales: { ...base().scales, y: { ...base().scales.y, suggestedMin: 1300, suggestedMax: 1750 } } }) });
+  }
+
+  function homeadv() {
+    const r = D.home_win_rate;
+    make('homeadv', { type: 'line', data: { labels: r.map(x => x.season), datasets: [{ data: r.map(x => x.rate * 100), borderColor: css('--s1'), backgroundColor: css('--s1'), borderWidth: 2, pointRadius: 2 }] },
+      options: base({ plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.parsed.y.toFixed(1)}% home wins` } } },
+        scales: { ...base().scales, y: { ...base().scales.y, min: 50, max: 64, ticks: { color: css('--ink-3'), callback: v => v + '%' } } } }) });
+  }
+
+  function factors() {
+    const f = D.factor_win_rates;
+    make('factors', { type: 'bar', data: { labels: f.map(x => x.factor), datasets: [{ data: f.map(x => x.win_rate),
+      backgroundColor: f.map((_, i) => i === 0 ? css('--s1') : css('--muted')), borderRadius: 3, maxBarThickness: 26 }] },
+      options: base({ indexAxis: 'y', interaction: { mode: 'nearest', axis: 'y', intersect: false },
+        plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: c => ` ${c.parsed.x.toFixed(1)}% of games won` } } },
+        scales: { x: { ...base().scales.y, min: 40, max: 90, ticks: { color: css('--ink-3'), callback: v => v + '%' } }, y: { ...base().scales.x } } }) });
+  }
+
+  function models() {
+    const m = [...D.models].sort((a, b) => a.log_loss - b.log_loss);
+    document.getElementById('models').innerHTML = '<tr><th>Model</th><th>Accuracy</th><th>Log loss</th><th>Brier</th></tr>' +
+      m.map(r => `<tr><td>${r.model}</td><td>${(r.accuracy * 100).toFixed(1)}%</td><td>${r.log_loss.toFixed(3)}</td><td>${r.brier.toFixed(3)}</td></tr>`).join('');
+  }
+
+  function calibration() {
+    const c = D.calibration;
+    make('calibration', { type: 'scatter', data: { datasets: [
+      { label: 'Perfect calibration', type: 'line', data: [{ x: 0, y: 0 }, { x: 1, y: 1 }], borderColor: css('--ink-3'), borderDash: [4, 4], borderWidth: 1, pointRadius: 0 },
+      { label: 'Elo, adaptive home bonus', type: 'line', data: c.map(r => ({ x: r.predicted, y: r.observed })), borderColor: css('--s1'), backgroundColor: css('--s1'), borderWidth: 2, pointRadius: 4 }] },
+      options: base({ interaction: { mode: 'nearest', intersect: false },
+        plugins: { ...base().plugins, tooltip: { ...base().plugins.tooltip, callbacks: { label: ctx => ctx.datasetIndex ? ` predicted ${(ctx.parsed.x * 100).toFixed(0)}%, actual ${(ctx.parsed.y * 100).toFixed(0)}% (${c[ctx.dataIndex].games} games)` : '' } } },
+        scales: { x: { ...base().scales.x, type: 'linear', min: 0, max: 1, title: { display: true, text: 'Predicted home-win probability', color: css('--ink-3') }, ticks: { color: css('--ink-3'), callback: v => (v * 100) + '%' } },
+                  y: { ...base().scales.y, min: 0, max: 1, title: { display: true, text: 'Actual home-win rate', color: css('--ink-3') }, ticks: { color: css('--ink-3'), callback: v => (v * 100) + '%' } } } }) });
+  }
+
+  function drawAll() { Chart.defaults.font.family = 'Inter, system-ui, sans-serif'; Chart.defaults.color = css('--ink-3'); ratings(); homeadv(); factors(); calibration(); calculator(); }
+
+  document.getElementById('theme').onclick = () => {
+    root.dataset.theme = getComputedStyle(root).colorScheme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('nba-theme', root.dataset.theme); } catch (e) {}
+    drawAll();
+  };
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (!root.dataset.theme) drawAll(); });
+
+  fetch('data.json').then(r => r.json()).then(d => {
+    D = d;
+    document.getElementById('subtitle').textContent = `Elo ratings with an adaptive home-court bonus · ${D.games.toLocaleString()} regular-season games · ratings as of the end of ${D.as_of}`;
+    document.getElementById('ratings-sub').textContent = `Elo rating at the end of ${D.as_of}, relative to the average of 1500.`;
+    const names = D.teams.map(t => t.team).sort();
+    for (const [id, pick] of [['home', D.teams[0].team], ['away', D.teams[2].team]]) {
+      const sel = document.getElementById(id);
+      sel.innerHTML = names.map(n => `<option${n === pick ? ' selected' : ''}>${n}</option>`).join('');
+      sel.onchange = calculator;
+    }
+    models();
+    drawAll();
+  });
+})();
+</script>
+</body>
+</html>
