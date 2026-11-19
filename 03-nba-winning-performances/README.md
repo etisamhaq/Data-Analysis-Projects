@@ -21,9 +21,9 @@ Across **27,597 regular-season games, 2001-02 to 2024-25** (data-quality exclusi
 
 | | Finding |
 |---|---|
-| **About 64% of games can be called before tip-off** | Elo 63.8% and logistic regression 64.5% accuracy, against 55.4% for "the home team always wins". |
-| **Home advantage has shrunk** | Home teams won 60.4% of games in 2001-02 to 2010-11 and 55.3% from 2019-20 on. A fixed home bonus makes ratings overconfident: it predicted 59.5% home wins on the test seasons against 55.4% actual. An adaptive bonus (from past seasons only) predicted 55.2%. |
-| **Recent form adds no reliable signal beyond calibrated Elo** | Log-loss gap of logistic regression vs Elo: −0.0012, 95% CI [−0.0045, +0.0022]. Gradient boosting was slightly worse than Elo. |
+| **About 64% of games can be called before tip-off** | Elo 64.0% and logistic regression 64.5% accuracy, against 55.5% for "the home team always wins". |
+| **Home advantage has shrunk** | Home teams won 60.4% of games in 2001-02 to 2010-11 and 55.3% from 2019-20 on. A fixed home bonus makes ratings overconfident: it predicted 59.5% home wins on the test seasons against 55.5% actual. An adaptive bonus (from past seasons only) predicted 55.1%. |
+| **Recent form adds no reliable signal beyond calibrated Elo** | Log-loss gap of logistic regression vs Elo: −0.0010, 95% CI [−0.0046, +0.0025]. Gradient boosting was slightly worse than Elo. |
 
 ![Win rate by factor](figures/01_factor_win_rates.png)
 ![Home advantage](figures/03_home_advantage.png)

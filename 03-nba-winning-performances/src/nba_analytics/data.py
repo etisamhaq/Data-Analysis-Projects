@@ -29,9 +29,15 @@ class DataValidationError(ValueError):
     """The data breaks an assumption the analysis depends on."""
 
 
-def season_of(dates: pd.Series) -> pd.Series:
-    """NBA season label: a season starting in October 2024 is 2024 (i.e. 2024-25)."""
-    return pd.Series(np.where(dates.dt.month >= 8, dates.dt.year, dates.dt.year - 1), index=dates.index)
+def season_of(game_ids: pd.Series) -> pd.Series:
+    """
+    NBA season label from the league's game ID: 22400627 = regular season (2), season 24 (2024-25), game 627.
+
+    The ID is authoritative. Inferring the season from the date fails for the 2020 "bubble": its games ran into
+    August 2020 but belong to 2019-20, and a month-based rule assigned 80 of them to 2020-21.
+    """
+    yy = game_ids.astype(int).astype(str).str[-7:-5].astype(int)
+    return pd.Series(np.where(yy >= 46, 1900 + yy, 2000 + yy), index=game_ids.index)
 
 
 def season_label(season: int) -> str:
@@ -46,7 +52,7 @@ def load_team_games(path: str | Path, game_type: str = "Regular Season") -> pd.D
         raise DataValidationError(f"Missing columns: {missing}")
     games = raw.loc[raw["gameType"] == game_type, REQUIRED_COLUMNS].copy()
     games["date"] = pd.to_datetime(games["gameDateTimeEst"], utc=True)
-    games["season"] = season_of(games["date"])
+    games["season"] = season_of(games["gameId"])
     games["win"] = games["win"].astype(int)
     return games.sort_values(["date", "gameId", "home"]).reset_index(drop=True)
 

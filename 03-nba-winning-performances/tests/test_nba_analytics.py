@@ -58,9 +58,10 @@ def test_inconsistent_games_flags_ties_and_zero_scores(games):
     assert "tied" in flagged[first] and "0-0" in flagged[second]
 
 
-def test_season_labels():
-    dates = pd.Series(pd.to_datetime(["2024-10-22", "2025-04-13", "2025-08-01"]))
-    assert data.season_of(dates).tolist() == [2024, 2024, 2025]
+def test_season_labels_come_from_the_game_id():
+    # 21901300: an August 2020 bubble game, which belongs to 2019-20 despite its date
+    ids = pd.Series([22400627, 21901300, 24600001, 29900001])
+    assert data.season_of(ids).tolist() == [2024, 2019, 1946, 1999]
     assert data.season_label(2024) == "2024-25"
 
 

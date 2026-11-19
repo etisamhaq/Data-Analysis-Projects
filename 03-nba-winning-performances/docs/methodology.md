@@ -11,6 +11,10 @@
 
 Mixing the two is a common mistake: a model fed in-game statistics "predicts" 95% of results, but only because it is told how the game went. Part 1 reports that figure as an explanation, never as a forecast.
 
+**Season labels come from the game ID** (22400627 = season 2024-25). An earlier version inferred them from the date
+with an August cut-off, which put 80 games of the August 2020 "bubble" into 2020-21; fixing it moved the prediction
+results by a few tenths of a point and changed no conclusion.
+
 ## 2. Data pipeline
 
 ```
@@ -44,8 +48,8 @@ Validation **raises** rather than warns: a broken assumption here would silently
 | Split | Seasons | Games scored* | Purpose |
 |---|---|---|---|
 | Train | 2001-02 to 2016-17 | 18,547 | Fit models; tune Elo K and home bonus |
-| Validation | 2017-18 to 2019-20 | 3,296 | Choose fixed vs adaptive home bonus |
-| Test | 2020-21, 2022-23 to 2024-25 | 4,648 | Final, one-time report |
+| Validation | 2017-18 to 2019-20 | 3,376 | Choose fixed vs adaptive home bonus |
+| Test | 2020-21, 2022-23 to 2024-25 | 4,573 | Final, one-time report |
 
 \*Each team's first three games of a season have no form features yet; those games are dropped from **every** model and baseline so all are scored on identical games.
 
@@ -69,12 +73,12 @@ Based on FiveThirtyEight's NBA Elo: start at 1500; winner takes `K × MOV multip
 
 | Model (test seasons) | Accuracy | Log loss | Brier |
 |---|---|---|---|
-| Home team always wins | 55.4% | 0.691 | 0.249 |
-| Elo, adaptive home bonus | 63.8% | 0.631 | 0.221 |
-| Logistic regression (Elo + form) | 64.5% | 0.630 | 0.220 |
-| Gradient boosting (Elo + form) | 64.3% | 0.635 | 0.222 |
+| Home team always wins | 55.5% | 0.691 | 0.249 |
+| Elo, adaptive home bonus | 64.0% | 0.630 | 0.220 |
+| Logistic regression (Elo + form) | 64.5% | 0.629 | 0.220 |
+| Gradient boosting (Elo + form) | 64.4% | 0.633 | 0.221 |
 
-Logistic regression's edge over Elo is not significant (log-loss gap −0.0012, 95% CI [−0.0045, +0.0022]).
+Logistic regression's edge over Elo is not significant (log-loss gap −0.0010, 95% CI [−0.0046, +0.0025]).
 
 ## 7. Limitations and extensions
 
