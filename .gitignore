@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+.ipynb_checkpoints/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Downloaded data (see each project's download script)
+03-nba-winning-performances/data/
+
+# OS
+.DS_Store
