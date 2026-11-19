@@ -12,3 +12,10 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# Environments and tool caches
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.rlib/
