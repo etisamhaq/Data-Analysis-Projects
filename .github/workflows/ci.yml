@@ -49,3 +49,18 @@ jobs:
 
       - name: Re-run every notebook from a clean kernel
         run: python tools/run_notebooks.py
+
+  r:
+    name: R - tests and analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unit tests (testthat, rocker/tidyverse:4.4.2)
+        run: make r-test
+
+      - name: Run the analysis and check its results are committed
+        run: |
+          make r-run
+          git diff --exit-code -- 02-adani-ports-stock-analysis/results

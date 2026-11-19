@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SYNTHETIC = [ROOT / "04-synthetic-data-sanity-check/data/cybersecurity_attacks.csv.gz",
              ROOT / "04-synthetic-data-sanity-check/data/air_quality_health_impact_data.csv.gz"]
 REAL = [ROOT / "01-netflix-content-strategy/netflix_titles.csv",
-        ROOT / "02-adani-ports-stock-analysis/ADANIPORTS.csv"]
+        ROOT / "02-adani-ports-stock-analysis/data/ADANIPORTS.csv"]
 NBA = ROOT / "03-nba-winning-performances/data/TeamStatistics.csv"
 
 rng = np.random.default_rng(0)
