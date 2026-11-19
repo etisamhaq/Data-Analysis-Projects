@@ -1,6 +1,6 @@
-# Data Analysis Projects
+# Signal or Noise: Data Analysis Case Studies
 
-Business and data analysis case studies in **Python** and **R**. Each project starts from a question, ends with findings and a recommendation, and says what the data can't support.
+Business and data analysis case studies in **Python** and **R**, each about telling a real pattern from noise. Every project starts from a question, ends with findings and a recommendation, and says what the data can't support.
 
 | # | Project | Question | Headline finding | Tools |
 |---|---|---|---|---|
