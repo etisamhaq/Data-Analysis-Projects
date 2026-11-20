@@ -5,7 +5,7 @@ R_IMAGE ?= rocker/tidyverse:4.4.2
 DOCKER_R = docker run --rm -v "$(CURDIR)/02-adani-ports-stock-analysis":/work -w /work \
 	--user "$$(id -u):$$(id -g)" -e HOME=/tmp -e R_LIBS_USER=/work/.rlib $(R_IMAGE)
 
-.PHONY: help setup lint format test data dashboard notebooks notebooks-write r-test r-run reproduce clean
+.PHONY: help setup lint format test data docs dashboard notebooks notebooks-write r-test r-run reproduce clean
 
 help:
 	@echo "make setup            Create .venv and install pinned dependencies + this repo's packages"
@@ -13,6 +13,7 @@ help:
 	@echo "make format           Auto-format Python code"
 	@echo "make test             Unit and data-validation tests (pytest)"
 	@echo "make data             Download datasets that are not stored in the repo"
+	@echo "make docs             Build the documentation site into site_build/ (strict: fails on broken links)"
 	@echo "make dashboard        Rebuild the data behind the Netflix, NBA and Olist dashboards"
 	@echo "make notebooks        Re-run every notebook from scratch and fail on any error"
 	@echo "make notebooks-write  Same, and save the fresh outputs"
@@ -38,6 +39,11 @@ test:
 data:
 	$(PYTHON) 03-nba-winning-performances/download_data.py
 	$(PYTHON) 05-olist-ecommerce-analytics/download_data.py
+
+docs:
+	$(PYTHON) -m pip install -q -e ".[docs]"
+	$(PYTHON) tools/build_docs.py
+	$(PYTHON) -m mkdocs build --strict
 
 dashboard:
 	cd 01-netflix-content-strategy && ../$(PYTHON) dashboard/build_dashboard.py

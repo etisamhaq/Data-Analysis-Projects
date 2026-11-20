@@ -1,0 +1,71 @@
+site_name: "Signal or Noise: Data Analysis Case Studies"
+site_description: Business and data analysis case studies in Python, SQL and R, each about telling a real pattern from noise.
+site_url: https://etisamhaq.github.io/Data-Analysis-Projects/
+repo_url: https://github.com/etisamhaq/Data-Analysis-Projects
+repo_name: etisamhaq/Data-Analysis-Projects
+edit_uri: ""
+copyright: MIT licensed code. Datasets keep their original licences.
+
+# Pages are generated from the repository's own documents by tools/build_docs.py
+docs_dir: docs_site
+site_dir: site_build
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: blue
+      toggle: { icon: material/weather-night, name: Switch to dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: blue
+      toggle: { icon: material/weather-sunny, name: Switch to light mode }
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - tables
+  - toc: { permalink: true }
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+
+nav:
+  - Home: index.md
+  - Dashboards: dashboards.md
+  - Netflix:
+      - Executive summary: 01-netflix-content-strategy/summary.md
+      - Case study: 01-netflix-content-strategy/index.md
+      - Methodology: 01-netflix-content-strategy/methodology.md
+  - Adani Ports:
+      - Executive summary: 02-adani-ports-stock-analysis/summary.md
+      - Case study: 02-adani-ports-stock-analysis/index.md
+      - Results: 02-adani-ports-stock-analysis/results.md
+      - Methodology: 02-adani-ports-stock-analysis/methodology.md
+  - NBA:
+      - Executive summary: 03-nba-winning-performances/summary.md
+      - Case study: 03-nba-winning-performances/index.md
+      - Methodology: 03-nba-winning-performances/methodology.md
+  - datasanity:
+      - Executive summary: 04-synthetic-data-sanity-check/summary.md
+      - Case study: 04-synthetic-data-sanity-check/index.md
+      - Methodology: 04-synthetic-data-sanity-check/methodology.md
+  - Olist:
+      - Executive summary: 05-olist-ecommerce-analytics/summary.md
+      - Case study: 05-olist-ecommerce-analytics/index.md
+      - Methodology: 05-olist-ecommerce-analytics/methodology.md
