@@ -2,6 +2,8 @@
 
 [![ci](https://github.com/etisamhaq/Data-Analysis-Projects/actions/workflows/ci.yml/badge.svg)](https://github.com/etisamhaq/Data-Analysis-Projects/actions/workflows/ci.yml)
 
+**[📖 Documentation site](https://etisamhaq.github.io/Data-Analysis-Projects/)** · [NBA dashboard](https://nba-win-probability-jade.vercel.app/) · [Netflix dashboard](https://netflix-catalogue-trends.vercel.app/) · [Olist dashboard](https://olist-marketplace-dashboard.vercel.app/)
+
 Business and data analysis case studies in **Python, SQL and R**, each about telling a real pattern from noise. Every project starts from a question, ends with findings and a recommendation, and says what the data can't support.
 
 | # | Project | Question | Headline finding | Tools |
@@ -56,7 +58,7 @@ make dashboard    # rebuild the Olist dashboard data
 make help         # all tasks
 ```
 
-Each project folder has its own README, `SUMMARY.md` (one-page executive summary) and `docs/methodology.md`. Python 3.10-3.12; the R project needs R 4.x with the tidyverse, or Docker.
+Each project folder has its own README, `SUMMARY.md` (one-page executive summary) and `docs/methodology.md`, all browsable on the [documentation site](https://etisamhaq.github.io/Data-Analysis-Projects/). Python 3.10-3.12; the R project needs R 4.x with the tidyverse, or Docker.
 
 ## License
 
